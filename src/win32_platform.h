@@ -49,13 +49,13 @@
 #endif
 
 // GLFW requires Windows XP or later
-#if WINVER < 0x0501
+#if WINVER < 0x0601
  #undef WINVER
- #define WINVER 0x0501
+ #define WINVER 0x0601
 #endif
-#if _WIN32_WINNT < 0x0501
+#if _WIN32_WINNT < 0x0601
  #undef _WIN32_WINNT
- #define _WIN32_WINNT 0x0501
+ #define _WIN32_WINNT 0x0601
 #endif
 
 // GLFW uses DirectInput8 interfaces
