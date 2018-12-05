@@ -51,11 +51,19 @@
 // GLFW requires Windows XP or later
 #if WINVER < 0x0601
  #undef WINVER
- #define WINVER 0x0601
+ // #ifdef TOUCH_SCREEN
+   #define WINVER 0x0601
+ // #else // TOUCH_SCREEN
+ //  #define WINVER 0x0501
+ // #endif // TOUCH_SCREEN
 #endif
 #if _WIN32_WINNT < 0x0601
  #undef _WIN32_WINNT
- #define _WIN32_WINNT 0x0601
+ // #ifdef TOUCH_SCREEN
+  #define _WIN32_WINNT 0x0601
+ // #else // TOUCH_SCREEN
+ //  #define _WIN32_WINNT 0x0501
+ // #endif // TOUCH_SCREEN
 #endif
 
 // GLFW uses DirectInput8 interfaces
@@ -206,6 +214,12 @@ typedef enum
  #define DIDFT_OPTIONAL	0x80000000
 #endif
 
+// #ifdef TOUCH_SCREEN
+#ifndef MAX_TOUCH_POINTS
+ #define MAX_TOUCH_POINTS 10
+#endif
+// #endif // TOUCH_SCREEN
+
 // winmm.dll function pointer typedefs
 typedef DWORD (WINAPI * PFN_timeGetTime)(void);
 #define timeGetTime _glfw.win32.winmm.GetTime
@@ -309,7 +323,21 @@ typedef struct _GLFWwindowWin32
 
     // The last received cursor position, regardless of source
     int                 lastCursorPosX, lastCursorPosY;
+// #ifdef TOUCH_SCREEN
+    struct {
+        int points[MAX_TOUCH_POINTS][2];
+        int idLookup[MAX_TOUCH_POINTS];
+        int wmId;
+        int wmEvent;
+        int i;
+        int x;
+        int y;
 
+        UINT cInputs;
+        PTOUCHINPUT pInputs;
+        POINT ptInput;
+    } touch;
+// #endif // TOUCH_SCREEN
 } _GLFWwindowWin32;
 
 // Win32-specific global data

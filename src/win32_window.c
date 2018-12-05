@@ -567,6 +567,26 @@ static void releaseMonitor(_GLFWwindow* window)
     _glfwRestoreVideoModeWin32(window->monitor);
 }
 
+// #ifdef TOUCH_SCREEN
+// This function is used to return an index given an ID
+//
+int GetContactIndex(_GLFWwindow* window, int dwID) {
+    for (int i = 0; i < MAX_TOUCH_POINTS; i++) {
+        if (window->win32.touch.idLookup[i] == -1) {
+            window->win32.touch.idLookup[i] = dwID;
+            return i;
+        }
+        else {
+            if (window->win32.touch.idLookup[i] == dwID) {
+                return i;
+            }
+        }
+    }
+    // Out of contacts
+    return -1;
+}
+// #endif // TOUCH_SCREEN
+
 // Window callback function (handles window messages)
 //
 static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
@@ -1161,6 +1181,42 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
             DragFinish(drop);
             return 0;
         }
+// #ifdef TOUCH_SCREEN
+        case WM_TOUCH:
+        {
+            window->win32.touch.cInputs = LOWORD(wParam);
+            window->win32.touch.pInputs = calloc(window->win32.touch.cInputs, sizeof(TOUCHINPUT));;
+            if (window->win32.touch.pInputs) {
+                if (GetTouchInputInfo((HTOUCHINPUT)lParam, window->win32.touch.cInputs, window->win32.touch.pInputs, sizeof(TOUCHINPUT))) {
+                    for (int i = 0; i < (int)(window->win32.touch.cInputs); i++) {
+                        TOUCHINPUT ti = window->win32.touch.pInputs[i];
+                        window->win32.touch.i = GetContactIndex(window, ti.dwID);
+                        if (ti.dwID != 0 && window->win32.touch.i < MAX_TOUCH_POINTS) {
+                            // Do something with your touch input handle
+                            window->win32.touch.ptInput.x = TOUCH_COORD_TO_PIXEL(ti.x);
+                            window->win32.touch.ptInput.y = TOUCH_COORD_TO_PIXEL(ti.y);
+                            ScreenToClient(hWnd, &window->win32.touch.ptInput);
+
+                            if (ti.dwFlags & TOUCHEVENTF_UP) {
+                                window->win32.touch.points[window->win32.touch.i][0] = -1;
+                                window->win32.touch.points[window->win32.touch.i][1] = -1;
+                            }
+                            else {
+                                window->win32.touch.points[window->win32.touch.i][0] = window->win32.touch.ptInput.x;
+                                window->win32.touch.points[window->win32.touch.i][1] = window->win32.touch.ptInput.y;
+                            }
+                        }
+                    }
+                }
+                // If you handled the message and don't want anything else done with it, you can close it
+                CloseTouchInputHandle((HTOUCHINPUT)lParam);
+                free(window->win32.touch.pInputs);
+            }
+            else {
+                // Handle the error here 
+            }  
+        }
+// #endif // TOUCH_SCREEN
     }
 
     return DefWindowProcW(hWnd, uMsg, wParam, lParam);
@@ -1280,6 +1336,18 @@ static int createNativeWindow(_GLFWwindow* window,
         updateFramebufferTransparency(window);
         window->win32.transparent = GLFW_TRUE;
     }
+
+// #ifdef TOUCH_SCREEN
+    // register the window for touch instead of gestures
+    RegisterTouchWindow(window->win32.handle, 0);
+
+    // the following code initializes the points
+    for (int i = 0; i < MAX_TOUCH_POINTS; i++) {
+        window->win32.touch.points[i][0] = -1;
+        window->win32.touch.points[i][1] = -1;
+        window->win32.touch.idLookup[i] = -1;
+    }
+// #endif // TOUCH_SCREEN
 
     return GLFW_TRUE;
 }
