@@ -1079,6 +1079,11 @@ extern "C" {
 
 #define GLFW_DONT_CARE              -1
 
+// #ifdef TOUCH_SCREEN
+#ifndef MAX_TOUCH_POINTS
+#define MAX_TOUCH_POINTS 10
+#endif
+// #endif // TOUCH_SCREEN
 
 /*************************************************************************
  * GLFW API types
@@ -1508,6 +1513,17 @@ typedef void (* GLFWmonitorfun)(GLFWmonitor*,int);
  *  @ingroup input
  */
 typedef void (* GLFWjoystickfun)(int,int);
+
+// #ifdef TOUCH_SCREEN
+/*! @brief The function signature for touch screen events
+ *
+ * This is the function signature for touch screen events handler func
+ *
+ * @param[in] window The window that received the event.
+ * @param[in] touch screen event data
+*/
+typedef void(* GLFWTouchScreenEventfun)(GLFWwindow*, int [MAX_TOUCH_POINTS][2]);
+// #endif // TOUCH_SCREEN
 
 /*! @brief Video mode type.
  *

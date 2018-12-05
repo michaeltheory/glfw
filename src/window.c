@@ -143,6 +143,11 @@ void _glfwInputWindowMonitor(_GLFWwindow* window, _GLFWmonitor* monitor)
     window->monitor = monitor;
 }
 
+// #ifdef TOUCH_SCREEN
+void _glfwInputTouchEvent(_GLFWwindow* window, int data[MAX_TOUCH_POINTS][2]) {
+    window->callbacks.touch((GLFWwindow*)window, data);
+}
+// #endif // TOUCH_SCREEN
 
 //////////////////////////////////////////////////////////////////////////
 //////                        GLFW public API                       //////

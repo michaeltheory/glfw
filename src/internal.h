@@ -411,6 +411,7 @@ struct _GLFWwindow
         GLFWcharfun             character;
         GLFWcharmodsfun         charmods;
         GLFWdropfun             drop;
+        GLFWTouchScreenEventfun  touch;
     } callbacks;
 
     // This is defined in the window API's platform.h
@@ -732,6 +733,9 @@ void _glfwInputError(int code, const char* format, ...)
 void _glfwInputError(int code, const char* format, ...);
 #endif
 
+//#ifdef TOUCH_SCREEN
+void _glfwInputTouchEvent(_GLFWwindow* window, int data[MAX_TOUCH_POINTS][2]);
+//#endif // TOUCH_SCREEN
 
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW internal API                      //////

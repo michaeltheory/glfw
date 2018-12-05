@@ -214,12 +214,6 @@ typedef enum
  #define DIDFT_OPTIONAL	0x80000000
 #endif
 
-// #ifdef TOUCH_SCREEN
-#ifndef MAX_TOUCH_POINTS
- #define MAX_TOUCH_POINTS 10
-#endif
-// #endif // TOUCH_SCREEN
-
 // winmm.dll function pointer typedefs
 typedef DWORD (WINAPI * PFN_timeGetTime)(void);
 #define timeGetTime _glfw.win32.winmm.GetTime
@@ -327,15 +321,6 @@ typedef struct _GLFWwindowWin32
     struct {
         int points[MAX_TOUCH_POINTS][2];
         int idLookup[MAX_TOUCH_POINTS];
-        int wmId;
-        int wmEvent;
-        int i;
-        int x;
-        int y;
-
-        UINT cInputs;
-        PTOUCHINPUT pInputs;
-        POINT ptInput;
     } touch;
 // #endif // TOUCH_SCREEN
 } _GLFWwindowWin32;
