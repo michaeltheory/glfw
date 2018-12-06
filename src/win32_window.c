@@ -1183,46 +1183,46 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
         }
 // #ifdef TOUCH_SCREEN
         case WM_TOUCH:
-        {
-            UINT cInputs = LOWORD(wParam);
-            PTOUCHINPUT pInputs = calloc(cInputs, sizeof(TOUCHINPUT));
+            if(window->callbacks.touch){
+                UINT cInputs = LOWORD(wParam);
+                PTOUCHINPUT pInputs = calloc(cInputs, sizeof(TOUCHINPUT));
 
-            if (pInputs) {
-                if (GetTouchInputInfo((HTOUCHINPUT)lParam, cInputs, pInputs, sizeof(TOUCHINPUT))) {
-                    for (int i = 0; i < (int)(cInputs); i++) {
-                        TOUCHINPUT ti = pInputs[i];
-                        int contact_i = GetContactIndex(window, ti.dwID);
-                        if (ti.dwID != 0 && contact_i < MAX_TOUCH_POINTS) {
+                if (pInputs) {
+                    if (GetTouchInputInfo((HTOUCHINPUT)lParam, cInputs, pInputs, sizeof(TOUCHINPUT))) {
+                        for (int i = 0; i < (int)(cInputs); i++) {
+                            TOUCHINPUT ti = pInputs[i];
+                            int contact_i = GetContactIndex(window, ti.dwID);
+                            if (ti.dwID != 0 && contact_i < MAX_TOUCH_POINTS) {
 
-                            // Do something with your touch input handle
-                            POINT contanct_pt = { TOUCH_COORD_TO_PIXEL(ti.x), TOUCH_COORD_TO_PIXEL(ti.y) };
+                                // Do something with your touch input handle
+                                POINT contanct_pt = { TOUCH_COORD_TO_PIXEL(ti.x), TOUCH_COORD_TO_PIXEL(ti.y) };
 
-                            ScreenToClient(hWnd, &contanct_pt);
+                                ScreenToClient(hWnd, &contanct_pt);
 
-                            if (ti.dwFlags & TOUCHEVENTF_UP)
-                            {
-                                window->win32.touch.points[contact_i][0] = -1;
-                                window->win32.touch.points[contact_i][1] = -1;
-                            }
-                            else
-                            {
-                                window->win32.touch.points[contact_i][0] = contanct_pt.x;
-                                window->win32.touch.points[contact_i][1] = contanct_pt.y;
+                                if (ti.dwFlags & TOUCHEVENTF_UP)
+                                {
+                                    window->win32.touch.points[contact_i][0] = -1;
+                                    window->win32.touch.points[contact_i][1] = -1;
+                                }
+                                else
+                                {
+                                    window->win32.touch.points[contact_i][0] = contanct_pt.x;
+                                    window->win32.touch.points[contact_i][1] = contanct_pt.y;
+                                }
                             }
                         }
                     }
+
+                    _glfwInputTouchEvent(window, window->win32.touch.points);
+
+                    // If you handled the message and don't want anything else done with it, you can close it
+                    CloseTouchInputHandle((HTOUCHINPUT)lParam);
+                    free(pInputs);
                 }
-
-                _glfwInputTouchEvent(window, window->win32.touch.points);
-
-                // If you handled the message and don't want anything else done with it, you can close it
-                CloseTouchInputHandle((HTOUCHINPUT)lParam);
-                free(pInputs);
+                else {
+                    // Handle the error here 
+                }
             }
-            else {
-                // Handle the error here 
-            }
-        }
 // #endif // TOUCH_SCREEN
     }
 

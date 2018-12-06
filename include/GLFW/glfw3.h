@@ -2611,7 +2611,33 @@ GLFWAPI void glfwSetWindowShouldClose(GLFWwindow* window, int value);
  *
  *  @ingroup window
  */
-GLFWAPI void glfwSetWindowTitle(GLFWwindow* window, const char* title);
+GLFWAPI void glfwSetWindowTitle(GLFWwindow* handle, const char* title);
+
+/*! @brief Sets the touch input event callback for the specified window.
+ *
+ *  This function sets the touch input event callback of the specified window, which is
+ *  called when the window's area is touched.  The callback is provided with the array of MAX_TOUCH_POINTS arrays
+ *  of 2 numbers which are x and y coordinated of certain touch contact, in screen coordinates,
+*   of the upper-left corner of the client area of the window.
+ *
+ *  @param[in] window The window whose callback to set.
+ *  @param[in] The new callback, or `NULL` to remove the currently set
+ *  callback.
+ *  @return The previously set callback, or `NULL` if no callback was set or the
+ *  library had not been [initialized](@ref intro_init).
+ *
+ *  @errors Possible errors include @ref GLFW_NOT_INITIALIZED.
+ *
+ *  @remark @imalyavskiy This callback will never be called, as touch events are not supported.
+ *      Currently touch events are implemented for Windows only starting from Windows 7(0x0601)
+ *
+ *  @thread_safety This function must only be called from the main thread.
+ *
+ *  @sa @ref window_pos
+ *
+ *  @ingroup window
+ */
+GLFWAPI GLFWTouchScreenEventfun setWindowTouchEventCallback(GLFWwindow* window, GLFWTouchScreenEventfun cbfun);
 
 /*! @brief Sets the icon for the specified window.
  *

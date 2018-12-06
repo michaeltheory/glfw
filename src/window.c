@@ -145,7 +145,8 @@ void _glfwInputWindowMonitor(_GLFWwindow* window, _GLFWmonitor* monitor)
 
 // #ifdef TOUCH_SCREEN
 void _glfwInputTouchEvent(_GLFWwindow* window, int data[MAX_TOUCH_POINTS][2]) {
-    window->callbacks.touch((GLFWwindow*)window, data);
+    if(window->callbacks.touch)
+        window->callbacks.touch((GLFWwindow*)window, data);
 }
 // #endif // TOUCH_SCREEN
 
@@ -505,6 +506,15 @@ GLFWAPI void glfwSetWindowTitle(GLFWwindow* handle, const char* title)
 
     _GLFW_REQUIRE_INIT();
     _glfwPlatformSetWindowTitle(window, title);
+}
+
+GLFWAPI GLFWTouchScreenEventfun setWindowTouchEventCallback(GLFWwindow* handle,
+                                                             GLFWTouchScreenEventfun cbfun)
+{
+    _GLFWwindow* window = (_GLFWwindow*)handle;
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
+    _GLFW_SWAP_POINTERS(window->callbacks.touch, cbfun);
+    return cbfun;
 }
 
 GLFWAPI void glfwSetWindowIcon(GLFWwindow* handle,
