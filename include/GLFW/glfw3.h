@@ -1520,9 +1520,12 @@ typedef void (* GLFWjoystickfun)(int,int);
  * This is the function signature for touch screen events handler func
  *
  * @param[in] window The window that received the event.
- * @param[in] touch screen event data
+ * @param[in] touch screen event data each entry is {x,y, (bool)is_primary, (bool)is_in_client_rect}
+ *  the 3rd item of the array states was the current element the very first touch after no touches or not.
+ *  note if the very first touch released then no touch would have the primary == true untill all the rest 
+ *  touches release.
 */
-typedef void(* GLFWTouchScreenEventfun)(GLFWwindow*, int [MAX_TOUCH_POINTS][2]);
+typedef void(* GLFWTouchScreenEventfun)(GLFWwindow*, int [MAX_TOUCH_POINTS][4]);
 // #endif // TOUCH_SCREEN
 
 /*! @brief Video mode type.

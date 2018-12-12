@@ -570,20 +570,32 @@ static void releaseMonitor(_GLFWwindow* window)
 // #ifdef TOUCH_SCREEN
 // This function is used to return an index given an ID
 //
-int GetContactIndex(_GLFWwindow* window, int dwID) {
+int GetContactIndex(_GLFWwindow* window, const int dwID) {
+    int first_unused = -1;
     for (int i = 0; i < MAX_TOUCH_POINTS; i++) {
-        if (window->win32.touch.idLookup[i] == -1) {
-            window->win32.touch.idLookup[i] = dwID;
+        if (window->win32.touch.idLookup[i] == -1 && first_unused == -1) {
+            first_unused = i;
+        }
+        else if (window->win32.touch.idLookup[i] == dwID) {
             return i;
         }
-        else {
-            if (window->win32.touch.idLookup[i] == dwID) {
-                return i;
-            }
-        }
     }
+
+    if (first_unused != -1) {
+        window->win32.touch.idLookup[first_unused] = dwID;
+        return first_unused;
+    }
+
     // Out of contacts
     return -1;
+}
+
+void CleanContactIndex(_GLFWwindow* window, const int dwID)
+{
+    for (int i = 0; i < MAX_TOUCH_POINTS; i++) {
+        if (window->win32.touch.idLookup[i] == dwID)
+            window->win32.touch.idLookup[i] = -1;
+    }
 }
 // #endif // TOUCH_SCREEN
 
@@ -1186,13 +1198,16 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
             if(window->callbacks.touch){
                 UINT cInputs = LOWORD(wParam);
                 PTOUCHINPUT pInputs = calloc(cInputs, sizeof(TOUCHINPUT));
+                RECT rcClient;
+                GetClientRect(hWnd, &rcClient);
 
                 if (pInputs) {
                     if (GetTouchInputInfo((HTOUCHINPUT)lParam, cInputs, pInputs, sizeof(TOUCHINPUT))) {
                         for (int i = 0; i < (int)(cInputs); i++) {
                             TOUCHINPUT ti = pInputs[i];
+
                             int contact_i = GetContactIndex(window, ti.dwID);
-                            if (ti.dwID != 0 && contact_i < MAX_TOUCH_POINTS) {
+                            if (ti.dwID != 0 && contact_i >= 0 && contact_i < MAX_TOUCH_POINTS) {
 
                                 // Do something with your touch input handle
                                 POINT contanct_pt = { TOUCH_COORD_TO_PIXEL(ti.x), TOUCH_COORD_TO_PIXEL(ti.y) };
@@ -1203,11 +1218,18 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                                 {
                                     window->win32.touch.points[contact_i][0] = -1;
                                     window->win32.touch.points[contact_i][1] = -1;
+                                    window->win32.touch.points[contact_i][2] = -1;
+                                    window->win32.touch.points[contact_i][3] = -1;
+
+                                    CleanContactIndex(window, ti.dwID);
                                 }
                                 else
                                 {
                                     window->win32.touch.points[contact_i][0] = contanct_pt.x;
                                     window->win32.touch.points[contact_i][1] = contanct_pt.y;
+                                    window->win32.touch.points[contact_i][2] = ((ti.dwFlags & TOUCHEVENTF_PRIMARY) > 0);
+                                    window->win32.touch.points[contact_i][3] = (rcClient.left <= contanct_pt.x && contanct_pt.x <= rcClient.right) &&
+                                        (rcClient.top <= contanct_pt.y && contanct_pt.y <= rcClient.bottom);
                                 }
                             }
                         }
@@ -1352,6 +1374,9 @@ static int createNativeWindow(_GLFWwindow* window,
     for (int i = 0; i < MAX_TOUCH_POINTS; i++) {
         window->win32.touch.points[i][0] = -1;
         window->win32.touch.points[i][1] = -1;
+        window->win32.touch.points[i][2] = -1;
+        window->win32.touch.points[i][3] = -1;
+
         window->win32.touch.idLookup[i] = -1;
     }
 // #endif // TOUCH_SCREEN

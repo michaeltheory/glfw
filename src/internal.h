@@ -734,7 +734,7 @@ void _glfwInputError(int code, const char* format, ...);
 #endif
 
 //#ifdef TOUCH_SCREEN
-void _glfwInputTouchEvent(_GLFWwindow* window, int data[MAX_TOUCH_POINTS][2]);
+void _glfwInputTouchEvent(_GLFWwindow* window, int data[MAX_TOUCH_POINTS][4]);
 //#endif // TOUCH_SCREEN
 
 //////////////////////////////////////////////////////////////////////////

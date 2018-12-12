@@ -319,7 +319,7 @@ typedef struct _GLFWwindowWin32
     int                 lastCursorPosX, lastCursorPosY;
 // #ifdef TOUCH_SCREEN
     struct {
-        int points[MAX_TOUCH_POINTS][2];
+        int points[MAX_TOUCH_POINTS][4];
         int idLookup[MAX_TOUCH_POINTS];
     } touch;
 // #endif // TOUCH_SCREEN

@@ -144,7 +144,7 @@ void _glfwInputWindowMonitor(_GLFWwindow* window, _GLFWmonitor* monitor)
 }
 
 // #ifdef TOUCH_SCREEN
-void _glfwInputTouchEvent(_GLFWwindow* window, int data[MAX_TOUCH_POINTS][2]) {
+void _glfwInputTouchEvent(_GLFWwindow* window, int data[MAX_TOUCH_POINTS][4]) {
     if(window->callbacks.touch)
         window->callbacks.touch((GLFWwindow*)window, data);
 }
